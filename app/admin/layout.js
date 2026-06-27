@@ -4,8 +4,8 @@ import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminLayout({ children }) {
-  const user = getSession();
+export default async function AdminLayout({ children }) {
+  const user = await getSession();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/");
 

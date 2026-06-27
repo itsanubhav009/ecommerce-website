@@ -4,14 +4,14 @@ import { getSession, requireAdmin } from "@/lib/auth";
 
 // Admin sees all orders; a logged-in user sees their own.
 export async function GET() {
-  const user = getSession();
+  const user = await getSession();
   if (!user) return NextResponse.json({ error: "Log in first." }, { status: 401 });
-  const orders = user.role === "ADMIN" ? getOrders() : getOrdersByUser(user.id);
+  const orders = user.role === "ADMIN" ? await getOrders() : await getOrdersByUser(user.id);
   return NextResponse.json({ orders });
 }
 
 export async function POST(req) {
-  const user = getSession();
+  const user = await getSession();
   if (!user) return NextResponse.json({ error: "Log in to place an order." }, { status: 401 });
 
   const { items, phone, callTime, address } = await req.json();
@@ -26,7 +26,7 @@ export async function POST(req) {
   const cleanItems = [];
   let total = 0;
   for (const it of items) {
-    const p = getProduct(it.id);
+    const p = await getProduct(it.id);
     if (!p) return NextResponse.json({ error: `A product is no longer available.` }, { status: 400 });
     if (p.stock <= 0) return NextResponse.json({ error: `"${p.name}" is sold out.` }, { status: 400 });
     const qty = Math.min(Math.max(1, Number(it.quantity) || 1), p.stock);
@@ -34,7 +34,7 @@ export async function POST(req) {
     total += p.price * qty;
   }
 
-  const order = createOrder({
+  const order = await createOrder({
     userId: user.id,
     userName: user.name,
     items: cleanItems,

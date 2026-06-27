@@ -2,8 +2,5 @@ node_modules
 .next
 out
 .env
+.env*.local
 .DS_Store
-# local JSON database + uploaded images are runtime data
-/data/db.json
-/public/uploads/*
-!/public/uploads/.gitkeep

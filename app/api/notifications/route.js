@@ -3,20 +3,20 @@ import { getNotifications, getUnreadCount, markAllRead } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
-  if (!requireAdmin()) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Admins only." }, { status: 403 });
   }
   return NextResponse.json({
-    notifications: getNotifications(),
-    unread: getUnreadCount(),
+    notifications: await getNotifications(),
+    unread: await getUnreadCount(),
   });
 }
 
 // Mark all as read
 export async function POST() {
-  if (!requireAdmin()) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Admins only." }, { status: 403 });
   }
-  markAllRead();
+  await markAllRead();
   return NextResponse.json({ ok: true });
 }

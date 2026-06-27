@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import crypto from "crypto";
 import { requireAdmin } from "@/lib/auth";
+import { supabase, STORAGE_BUCKET } from "@/lib/supabase";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+const EXT = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/svg+xml": "svg",
+};
 
 export async function POST(req) {
-  if (!requireAdmin()) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Admins only." }, { status: 403 });
   }
 
@@ -20,7 +25,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "No images provided." }, { status: 400 });
   }
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  const client = supabase();
   const urls = [];
 
   for (const file of files) {
@@ -33,11 +38,24 @@ export async function POST(req) {
     if (file.size > MAX_BYTES) {
       return NextResponse.json({ error: `${file.name} is larger than 5MB.` }, { status: 400 });
     }
-    const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const ext = EXT[file.type] || "png";
     const filename = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer);
-    urls.push(`/uploads/${filename}`);
+
+    const { error } = await client.storage
+      .from(STORAGE_BUCKET)
+      .upload(filename, buffer, { contentType: file.type, upsert: false });
+
+    if (error) {
+      return NextResponse.json(
+        { error: `Upload failed: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    const { data } = client.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+    urls.push(data.publicUrl);
   }
 
   return NextResponse.json({ urls });

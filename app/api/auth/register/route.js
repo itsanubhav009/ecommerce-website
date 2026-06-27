@@ -10,11 +10,11 @@ export async function POST(req) {
   if (password.length < 6) {
     return NextResponse.json({ error: "Password must be at least 6 characters." }, { status: 400 });
   }
-  if (getUserByEmail(email)) {
+  if (await getUserByEmail(email)) {
     return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
   }
 
-  const user = createUser({ name, email, password, role: "USER" });
+  const user = await createUser({ name, email, password, role: "USER" });
   const token = signToken({ id: user.id, role: user.role });
 
   const res = NextResponse.json({

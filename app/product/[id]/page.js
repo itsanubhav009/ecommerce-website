@@ -5,8 +5,8 @@ import ProductDetail from "./ProductDetail";
 
 export const dynamic = "force-dynamic";
 
-export default function ProductPage({ params }) {
-  const product = getProduct(params.id);
+export default async function ProductPage({ params }) {
+  const product = await getProduct(params.id);
   if (!product) return notFound();
 
   return (

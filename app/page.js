@@ -4,8 +4,8 @@ import ProductCard from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const products = getProducts();
+export default async function HomePage() {
+  const products = await getProducts();
   const inStock = products.filter((p) => p.stock > 0).length;
 
   return (

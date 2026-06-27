@@ -5,7 +5,7 @@ import { signToken, COOKIE_NAME } from "@/lib/auth";
 
 export async function POST(req) {
   const { email, password } = await req.json();
-  const user = getUserByEmail(email || "");
+  const user = await getUserByEmail(email || "");
   if (!user || !bcrypt.compareSync(password || "", user.password)) {
     return NextResponse.json({ error: "Wrong email or password." }, { status: 401 });
   }
