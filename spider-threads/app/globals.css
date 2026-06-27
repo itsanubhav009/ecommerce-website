@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0a0a0f;
+  --web: #e62429;
+  --volt: #1b6fe0;
+  --pop: #ffd400;
+  --glitch: #ff2d95;
+  --cream: #f5f1e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--ink);
+  color: var(--cream);
+  font-family: "Inter", system-ui, sans-serif;
+  /* Ben-Day halftone dots, kept subtle & GPU-cheap (a single repeating gradient). */
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(230, 36, 41, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- Type treatments ---------------- */
+.font-display {
+  font-family: "Bangers", cursive;
+  letter-spacing: 0.04em;
+}
+.font-impact {
+  font-family: "Anton", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Chromatic-aberration glitch headline (the page signature). */
+.glitch {
+  position: relative;
+  color: var(--cream);
+  text-shadow:
+    3px 0 var(--web),
+    -3px 0 var(--volt);
+}
+.glitch-pop {
+  color: var(--pop);
+  text-shadow:
+    3px 0 var(--web),
+    -3px 0 var(--volt);
+}
+
+/* Comic action burst (the "POP" badge). Pure CSS clip-path star. */
+.burst {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pop);
+  color: var(--ink);
+  font-family: "Bangers", cursive;
+  clip-path: polygon(
+    50% 0%, 61% 16%, 79% 8%, 76% 27%, 96% 31%, 82% 45%,
+    100% 56%, 80% 62%, 88% 82%, 67% 76%, 60% 96%, 50% 79%,
+    40% 96%, 33% 76%, 12% 82%, 20% 62%, 0% 56%, 18% 45%,
+    4% 31%, 24% 27%, 21% 8%, 39% 16%
+  );
+}
+
+/* Comic panel: thick ink border + hard offset shadow. */
+.panel {
+  border: 3px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.panel-dark {
+  border: 3px solid var(--cream);
+  background: #11121a;
+  color: var(--cream);
+  box-shadow: 6px 6px 0 0 var(--web);
+}
+
+/* ---------------- Optimized hover effects ----------------
+   Only transform/opacity are animated (compositor-only = 60fps, no layout/paint).
+   will-change is applied narrowly so we don't blow the memory budget. */
+.card-hover {
+  transform: translateZ(0);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+@media (hover: hover) {
+  .card-hover:hover {
+    transform: translateY(-6px) rotate(-1deg);
+    box-shadow: 10px 12px 0 0 var(--web);
+  }
+}
+
+.btn {
+  font-family: "Anton", sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 3px solid var(--ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  will-change: transform;
+}
+.btn-primary {
+  background: var(--web);
+  color: var(--cream);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+.btn-pop {
+  background: var(--pop);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.btn-pop:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--cream);
+  border-color: var(--cream);
+}
+.btn-ghost:hover {
+  background: var(--cream);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 3px;
+  width: 100%;
+  background: var(--pop);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.18s ease;
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* image zoom on hover (transform only) */
+.zoom-wrap {
+  overflow: hidden;
+}
+.zoom-img {
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+@media (hover: hover) {
+  .zoom-wrap:hover .zoom-img {
+    transform: scale(1.06);
+  }
+}
+
+/* Accessibility: respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .card-hover:hover,
+  .btn:hover,
+  .zoom-wrap:hover .zoom-img {
+    transform: none !important;
+  }
+}
+
+/* visible keyboard focus everywhere */
+:focus-visible {
+  outline: 3px solid var(--pop);
+  outline-offset: 2px;
+}
+
+/* thin scrollbar that matches the theme */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #11121a;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--web);
+  border: 2px solid #11121a;
+}
